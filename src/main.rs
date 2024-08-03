@@ -6,6 +6,7 @@ mod guessture;
 mod handle_figure_recognition;
 mod backupper;
 mod audio;
+mod config;
 
 
 fn main() {

@@ -1,12 +1,14 @@
-use crate::audio::{play_audio_sin, play_audio_file};
+use crate::{audio::{play_audio_file, play_audio_sin}, config::Config};
 
 pub struct Backupper {
-
+    config: Config,
 }
 
 impl Backupper {
     pub fn new() -> Self {
-        Backupper {}
+        Backupper {
+            config: Config::new(),
+        }
     }
 
     pub fn init(&self) {
