@@ -1,4 +1,4 @@
-use crate::audio::{play_audio_sin, play_audiofile};
+use crate::audio::{play_audio_sin, play_audio_file};
 
 pub struct Backupper {
 
@@ -11,7 +11,7 @@ impl Backupper {
 
     pub fn init(&self) {
         println!("Backup initialized, waiting for confirm...");
-        play_audiofile("start_sound.wav");
+        play_audio_file("start_sound.wav");
     }
 
     pub fn confirm(&self) {

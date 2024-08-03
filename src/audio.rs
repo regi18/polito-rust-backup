@@ -24,7 +24,7 @@ pub fn play_audio_sin(freq: f32, ampl: f32) {
     play_audio(source);
 }
 
-pub fn play_audiofile(file_name: &str) {
+pub fn play_audio_file(file_name: &str) {
     // Load a sound from a file, using a path relative to Cargo.toml
     let file = BufReader::new(File::open(format!("assets/{}", file_name)).unwrap());
     // Decode that sound file into a source
