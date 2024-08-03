@@ -1,27 +1,22 @@
+use backupper::Backupper;
 use handle_figure_recognition::recognize_figures;
 
 mod figures_templates;
 mod guessture;
 mod handle_figure_recognition;
-mod Backupper;
-
-
-fn start_backup() {
-
-}
+mod backupper;
+mod utils;
 
 
 fn main() {
-    let backupper = Backupper::new()
+    let backupper = Backupper::new();
 
-    // N.B. The drawing order of the figures must be the same as shown here "https://depts.washington.edu/acelab/proj/dollar/index.html"
     recognize_figures(|name| {
         match name.as_str() {
-            "rectangle" => Backupper::start(),
-            "triangle" => Backupper::confirm(),
-            "delete" => Backupper::cancel(),
+            "rectangle" => backupper.init(),
+            "triangle" => backupper.confirm(),
+            "delete" => backupper.cancel(),
             _ => {},
         }
-        println!("pattern: {}",  name);
     })
 }

@@ -10,7 +10,15 @@ const CIRCULAR_BUFFER_LEN: usize = 100;
 const POLLING_RATE_MS: u64 = 10;
 
 
-pub fn recognize_figures(on_figure_recognized: fn(figure_name: &String) -> ()) {
+/**
+   Recognizes figures drawn with the mouse thanks to the $1 algorithm. 
+   The list of figures is the one defines in figures_template.rs.
+   N.B. The drawing order of the figures must be the same as shown here 
+   "https://depts.washington.edu/acelab/proj/dollar/index.html"
+   
+   `on_figure_recognized(figure_name)` - callback called when a figure is recognized
+ */
+pub fn recognize_figures(on_figure_recognized: impl Fn(&String) -> ()) {
     let enigo: Enigo = Enigo::new(&Settings::default()).unwrap();
     let templates: Vec<guessture::Template> = get_templates();
 
