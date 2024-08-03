@@ -18,7 +18,7 @@ const POLLING_RATE_MS: u64 = 10;
    
    `on_figure_recognized(figure_name)` - callback called when a figure is recognized
  */
-pub fn recognize_figures(on_figure_recognized: impl Fn(&String) -> ()) {
+pub fn recognize_figures(mut on_figure_recognized: impl FnMut(&String) -> ()) {
     let enigo: Enigo = Enigo::new(&Settings::default()).unwrap();
     let templates: Vec<guessture::Template> = get_templates();
 

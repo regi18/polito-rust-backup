@@ -10,7 +10,7 @@ mod config;
 
 
 fn main() {
-    let backupper = Backupper::new();
+    let mut backupper = Backupper::new();
 
     recognize_figures(|name| {
         match name.as_str() {

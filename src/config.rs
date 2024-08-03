@@ -6,8 +6,8 @@ use toml;
 // Config struct holds to data from the `[config]` section.
 #[derive(Deserialize, Debug)]
 pub struct Config {
-    backup_source: String,
-    backup_dest: String,
+    pub backup_source: String,
+    pub backup_dest: String,
 }
 
 impl Config {
