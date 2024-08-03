@@ -5,7 +5,7 @@ mod figures_templates;
 mod guessture;
 mod handle_figure_recognition;
 mod backupper;
-mod utils;
+mod audio;
 
 
 fn main() {
