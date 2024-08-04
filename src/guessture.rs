@@ -23,10 +23,12 @@ impl Path2D {
         Path2D { points }
     }
 
+    #[allow(dead_code)]
     pub fn empty() -> Path2D {
         Path2D { points: vec![] }
     }
 
+    #[allow(dead_code)]
     pub fn vec_length(&self) -> usize {
         self.points.len()
     }
@@ -37,6 +39,7 @@ impl Path2D {
         self.points.iter().map(|p| (p.x, p.y)).collect()
     }
 
+    #[allow(dead_code)]
     /// Add a new point to this path.
     pub fn push(&mut self, x: PathCoord, y: PathCoord) {
         self.points.push(Point2D::new(x, y));
