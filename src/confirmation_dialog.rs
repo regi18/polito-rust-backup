@@ -2,18 +2,22 @@
 use native_dialog::{MessageDialog, MessageType};
 use crate::backupper::Backupper;
 
-//take in ingress the Backupper struct
-pub fn show_confirmation_dialog(backupper: &mut Backupper) {
+pub fn show_confirmation_dialog() -> bool {
     // Mostra una finestra di dialogo con pulsanti "Sì" e "No"
-    let result = MessageDialog::new()
+    let dialog = MessageDialog::new()
         .set_title("Backup Confirmation")
         .set_text("Do you want to proceed with the backup?")
-        .set_type(MessageType::Warning)
-        .show_confirm()
-        .unwrap();
+        .set_type(MessageType::Warning);
     
-    match result {
-        true => backupper.confirm(), //if the user press "Yes" the confirm method is called
-        false => backupper.cancel(), //if the user press "No" the cancel method is called
+    match dialog.show_confirm() {
+        Ok(result) => result,
+        Err(e) => {
+            eprintln!("Error displaying dialog: {}", e);
+            false
+            }
     }
+
+    //non si chiude la finestra di dialogo dopo che ho premuo "Sì" o "No"
+    //come faccio a chiuderla?
+    
 }

@@ -54,7 +54,11 @@ impl Backupper {
         self.status = BackupperStatus::WaitingConfirm;
 
         // Show confirmation dialog and check user response
-        show_confirmation_dialog(self);
+        let result = show_confirmation_dialog();
+        match result {
+            true => self.confirm(), //if the user press "Yes" the confirm method is called
+            false => self.cancel(), //if the user press "No" the cancel method is called
+        }
     }
 
     pub fn confirm(&mut self) {
