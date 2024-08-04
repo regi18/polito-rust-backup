@@ -1,6 +1,5 @@
 
 use native_dialog::{MessageDialog, MessageType};
-use crate::backupper::Backupper;
 
 pub fn show_confirmation_dialog() -> bool {
     // Mostra una finestra di dialogo con pulsanti "Sì" e "No"
@@ -16,8 +15,5 @@ pub fn show_confirmation_dialog() -> bool {
             false
             }
     }
-
-    //non si chiude la finestra di dialogo dopo che ho premuo "Sì" o "No"
-    //come faccio a chiuderla?
     
 }
