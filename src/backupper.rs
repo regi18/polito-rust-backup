@@ -1,9 +1,6 @@
-
 use std::{fs, io, path::Path};
-use crate::cpu_logger::ProcessTime;
-
-
-use crate::{audio::{play_audio_file, play_audio_sin}, config::Config};
+use crate::{audio::{play_audio_file, play_audio_sin}, config::Config, cpu_logger::ProcessTime};
+use crate::confirmation_dialog::show_confirmation_dialog;
 
 /**
   Recursively copies src folder into dst
@@ -55,6 +52,9 @@ impl Backupper {
         play_audio_file("start_sound.wav");
 
         self.status = BackupperStatus::WaitingConfirm;
+
+        // Show confirmation dialog and check user response
+        show_confirmation_dialog(self);
     }
 
     pub fn confirm(&mut self) {
@@ -71,7 +71,6 @@ impl Backupper {
         let start_cpu_time = ProcessTime::now();
 
         //back-up operation
-        //copy_dir_all(&self.config.backup_source, &self.config.backup_dest).unwrap();
         let (total_size, result) = {
             let src = &self.config.backup_source;
             let dst = &self.config.backup_dest;

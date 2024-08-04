@@ -9,9 +9,11 @@ mod backupper;
 mod audio;
 mod config;
 mod cpu_logger;
+mod confirmation_dialog;
 
 
 fn main() {
+    
     // Clear the CPU log file at the start of the program
     clear_cpu_log_file();
 
@@ -28,4 +30,5 @@ fn main() {
             _ => {},
         }
     })
+    
 }
