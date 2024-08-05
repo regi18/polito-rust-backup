@@ -13,7 +13,6 @@ pub fn show_confirmation_dialog() -> bool {
         Err(e) => {
             eprintln!("Error displaying dialog: {}", e);
             false
-            }
+        }
     }
-    
 }

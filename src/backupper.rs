@@ -71,19 +71,20 @@ impl Backupper {
 
         self.status = BackupperStatus::Running;
         
-        //starting measuring CPU time
+        // Start measuring CPU time
         let start_cpu_time = ProcessTime::now();
 
-        //back-up operation
+        // Back-up operation
         let (total_size, result) = {
             let src = &self.config.backup_source;
             let dst = &self.config.backup_dest;
             let result = copy_dir_all(src, dst);
             let total_size = result.as_ref().map_or(0, |size| *size);
+            
             (total_size, result)
         };
 
-        //ending measuring CPU time
+        // End measuring CPU time
         let elapsed_cpu_time = start_cpu_time.elapsed();
         
         match result {

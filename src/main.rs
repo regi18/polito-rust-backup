@@ -1,6 +1,6 @@
 use backupper::Backupper;
 use handle_figure_recognition::recognize_figures;
-use cpu_logger::{start_cpu_logging, clear_cpu_log_file};
+use cpu_logger::Logger;
 
 mod figures_templates;
 mod guessture;
@@ -13,12 +13,9 @@ mod confirmation_dialog;
 
 
 fn main() {
-    
-    // Clear the CPU log file at the start of the program
-    clear_cpu_log_file();
-
     // Start CPU logging in a separate thread
-    start_cpu_logging();
+    let mut logger = Logger::new(5);
+    logger.start();
 
     let mut backupper = Backupper::new();
 
