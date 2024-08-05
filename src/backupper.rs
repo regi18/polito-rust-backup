@@ -70,6 +70,8 @@ impl Backupper {
             return;
         }
 
+        self.confirm_dialog.close();
+
         println!("[*] Backup confirmed, starting...");
         play_audio_sin(1000.0, 0.1);
 
@@ -116,6 +118,8 @@ impl Backupper {
     }
 
     pub fn cancel(&mut self) {
+        self.confirm_dialog.close();
+
         println!("[!] Backup canceled");
         play_audio_sin(300.0, 0.5);
 
