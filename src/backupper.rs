@@ -1,5 +1,5 @@
 use crate::{
-    audio::{play_audio_file, play_audio_sin}, config::Config, confirmation_dialog::ConfirmDialog, cpu_logger::ProcessTime
+    audio::{play_audio_file, play_audio_sin}, config::Config, cpu_logger::ProcessTime
 };
 use std::{fs, io, path::Path};
 
@@ -37,7 +37,6 @@ enum BackupperStatus {
 pub struct Backupper {
     config: Config,
     status: BackupperStatus,
-    confirm_dialog: ConfirmDialog,
 }
 
 impl Backupper {
@@ -45,7 +44,6 @@ impl Backupper {
         Backupper {
             config: Config::new(),
             status: BackupperStatus::Ready,
-            confirm_dialog: ConfirmDialog::new(),
         }
     }
 
@@ -54,23 +52,12 @@ impl Backupper {
         play_audio_file("start_sound.wav");
 
         self.status = BackupperStatus::WaitingConfirm;
-
-        // Show confirmation dialog and check user response
-        let mut obj = self.clone();
-        self.confirm_dialog.open(move |result| {
-            match result {
-                true => obj.confirm(), //if the user press "Yes" the confirm method is called
-                false => obj.cancel(), //if the user press "No" the cancel method is called
-            };
-        });
     }
 
     pub fn confirm(&mut self) {
         if self.status != BackupperStatus::WaitingConfirm {
             return;
         }
-
-        self.confirm_dialog.close();
 
         println!("[*] Backup confirmed, starting...");
         play_audio_sin(1000.0, 0.1);
@@ -118,8 +105,6 @@ impl Backupper {
     }
 
     pub fn cancel(&mut self) {
-        self.confirm_dialog.close();
-
         println!("[!] Backup canceled");
         play_audio_sin(300.0, 0.5);
 

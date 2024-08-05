@@ -6,11 +6,18 @@ use egui::{Align, FontId, Layout, RichText, WindowLevel};
 #[derive(Clone)]
 pub struct ConfirmDialog {
     is_running: Arc<Mutex<bool>>,
-    native_options: eframe::NativeOptions,
 }
 
 impl ConfirmDialog {
     pub fn new() -> Self {
+        ConfirmDialog {
+            is_running: Arc::new(Mutex::new(true)),
+        }
+    }
+
+    pub fn open(&self, on_choice: impl FnMut(bool, Arc<Mutex<bool>>) -> () + 'static) {
+        let ptr = self.is_running.clone();
+
         let native_options = eframe::NativeOptions {
             viewport: egui::ViewportBuilder::default()
                 .with_inner_size([450.0, 100.0])
@@ -22,22 +29,14 @@ impl ConfirmDialog {
             ..Default::default()
         };
 
-        ConfirmDialog {
-            is_running: Arc::new(Mutex::new(true)),
-            native_options,
-        }
-    }
-
-    pub fn open(&self, on_choice: impl FnMut(bool) -> () + 'static) {
-        let ptr = self.is_running.clone();
         let _ = eframe::run_native(
             "Backup Confirmation",
-            self.native_options.clone(),
+            native_options,
             Box::new(|_cc| Ok(Box::new(DialogApp::new(on_choice, ptr)))),
         );
     }
 
-    pub fn close(&mut self) {
+    pub fn close(&self) {
         let mut is_running = (*self.is_running).lock().unwrap();
         *is_running = false;
     }
@@ -46,12 +45,12 @@ impl ConfirmDialog {
 
 struct DialogApp {
     description: String,
-    on_choice_callback: Box<dyn FnMut(bool) -> ()>,
+    on_choice_callback: Box<dyn FnMut(bool, Arc<Mutex<bool>>) -> ()>,
     is_running: Arc<Mutex<bool>>,
 }
 
 impl DialogApp {
-    fn new(on_choice: impl FnMut(bool) -> () + 'static, is_running: Arc<Mutex<bool>>) -> Self {
+    fn new(on_choice: impl FnMut(bool, Arc<Mutex<bool>>) -> () + 'static, is_running: Arc<Mutex<bool>>) -> Self {
         Self {
             description: "Do you want to proceed with the backup?".to_string(),
             on_choice_callback: Box::new(on_choice),
@@ -66,6 +65,7 @@ impl eframe::App for DialogApp {
         if !(*is_running) {
             ctx.send_viewport_cmd(egui::ViewportCommand::Close);
         }
+        drop(is_running);
 
         CentralPanel::default().show(ctx, |ui| {
             ui.with_layout(Layout::top_down(Align::Center), |ui| {
@@ -78,15 +78,15 @@ impl eframe::App for DialogApp {
                         ui.add_space(10.0);
 
                         if ui.button("OK").clicked() {
-                            (&mut self.on_choice_callback)(true);
                             ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+                            (&mut self.on_choice_callback)(true, self.is_running.clone());
                         }
 
                         ui.add_space(10.0);
 
                         if ui.button("Cancel").clicked() {
-                            (&mut self.on_choice_callback)(false);
                             ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+                            (&mut self.on_choice_callback)(false, self.is_running.clone());
                         }
                     });
                 });
