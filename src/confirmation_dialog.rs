@@ -1,11 +1,11 @@
-use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 
 use eframe::egui::{CentralPanel, Context};
 use egui::{Align, FontId, Layout, RichText, WindowLevel};
 
 #[derive(Clone)]
 pub struct ConfirmDialog {
-    is_running: Rc<bool>,
+    is_running: Arc<Mutex<bool>>,
     native_options: eframe::NativeOptions,
 }
 
@@ -23,14 +23,13 @@ impl ConfirmDialog {
         };
 
         ConfirmDialog {
-            is_running: Rc::new(true),
+            is_running: Arc::new(Mutex::new(true)),
             native_options,
         }
     }
 
     pub fn open(&self, on_choice: impl FnMut(bool) -> () + 'static) {
         let ptr = self.is_running.clone();
-
         let _ = eframe::run_native(
             "Backup Confirmation",
             self.native_options.clone(),
@@ -39,7 +38,8 @@ impl ConfirmDialog {
     }
 
     pub fn close(&mut self) {
-        *Rc::get_mut(&mut self.is_running).unwrap() = false;
+        let mut is_running = (*self.is_running).lock().unwrap();
+        *is_running = false;
     }
 }
 
@@ -47,11 +47,11 @@ impl ConfirmDialog {
 struct DialogApp {
     description: String,
     on_choice_callback: Box<dyn FnMut(bool) -> ()>,
-    is_running: Rc<bool>,
+    is_running: Arc<Mutex<bool>>,
 }
 
 impl DialogApp {
-    fn new(on_choice: impl FnMut(bool) -> () + 'static, is_running: Rc<bool>) -> Self {
+    fn new(on_choice: impl FnMut(bool) -> () + 'static, is_running: Arc<Mutex<bool>>) -> Self {
         Self {
             description: "Do you want to proceed with the backup?".to_string(),
             on_choice_callback: Box::new(on_choice),
@@ -62,7 +62,8 @@ impl DialogApp {
 
 impl eframe::App for DialogApp {
     fn update(&mut self, ctx: &Context, _frame: &mut eframe::Frame) {
-        if !*self.is_running {
+        let is_running = (*self.is_running).lock().unwrap();
+        if !(*is_running) {
             ctx.send_viewport_cmd(egui::ViewportCommand::Close);
         }
 
