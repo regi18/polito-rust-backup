@@ -25,7 +25,7 @@ impl ConfirmDialog {
                 .with_decorations(false)
                 .with_window_level(WindowLevel::AlwaysOnTop)
                 .with_titlebar_shown(false),
-            run_and_return: false,
+            run_and_return: true,
             ..Default::default()
         };
 
@@ -57,13 +57,19 @@ impl DialogApp {
             is_running,
         }
     }
+
+    fn close(&self, ctx: &Context) {
+        // BUG: https://github.com/emilk/egui/issues/2892
+        ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+    }
 }
 
 impl eframe::App for DialogApp {
     fn update(&mut self, ctx: &Context, _frame: &mut eframe::Frame) {
         let is_running = (*self.is_running).lock().unwrap();
         if !(*is_running) {
-            ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+            self.close(ctx);
+            return;
         }
         drop(is_running);
 
@@ -78,19 +84,23 @@ impl eframe::App for DialogApp {
                         ui.add_space(10.0);
 
                         if ui.button("OK").clicked() {
-                            ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+                            self.close(ctx);
                             (&mut self.on_choice_callback)(true, self.is_running.clone());
                         }
 
                         ui.add_space(10.0);
 
                         if ui.button("Cancel").clicked() {
-                            ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+                            self.close(ctx);
                             (&mut self.on_choice_callback)(false, self.is_running.clone());
                         }
                     });
                 });
             });
         });
+    }
+
+    fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
+        println!("EXIT");
     }
 }

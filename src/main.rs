@@ -24,6 +24,10 @@ fn main() {
     let backupper = Arc::new(Mutex::new(Backupper::new()));
     let (tx, rx) = mpsc::channel();
 
+    // TESTING
+    confirm_dialog.open(|_,_|{});
+    // TESTING
+
     let b = backupper.clone();
     let c = confirm_dialog.clone();
     let h = recognize_figures(move |name| {
@@ -53,7 +57,7 @@ fn main() {
                 });
             },
             Err(e) => {
-                println!("ERROR: {:?}", e);
+                println!("CHANNEL ERROR: {:?}", e);
                 break;
             }
         };
