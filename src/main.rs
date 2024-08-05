@@ -14,7 +14,7 @@ mod confirmation_dialog;
 
 fn main() {
     // Start CPU logging in a separate thread
-    let mut logger = Logger::new(5);
+    let mut logger = Logger::new(120);
     logger.start();
 
     let mut backupper = Backupper::new();
