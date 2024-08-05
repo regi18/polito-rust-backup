@@ -1,10 +1,11 @@
+use crate::{
+    audio::{play_audio_file, play_audio_sin}, config::Config, confirmation_dialog::ConfirmDialog, cpu_logger::ProcessTime
+};
 use std::{fs, io, path::Path};
-use crate::{audio::{play_audio_file, play_audio_sin}, config::Config, cpu_logger::ProcessTime};
-use crate::confirmation_dialog::show_confirmation_dialog;
 
 /**
-  Recursively copies src folder into dst
- */
+ Recursively copies src folder into dst
+*/
 fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<u64> {
     fs::create_dir_all(&dst)?;
 
@@ -15,8 +16,7 @@ fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<u64>
         let ty = entry.file_type()?;
         if ty.is_dir() {
             total_size += copy_dir_all(entry.path(), dst.as_ref().join(entry.file_name()))?;
-        } 
-        else {
+        } else {
             fs::copy(entry.path(), dst.as_ref().join(entry.file_name()))?;
             let metadata = fs::metadata(entry.path())?;
             total_size += metadata.len();
@@ -26,17 +26,18 @@ fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<u64>
     Ok(total_size)
 }
 
-
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 enum BackupperStatus {
     Ready,
     WaitingConfirm,
     Running,
 }
 
+#[derive(Clone)]
 pub struct Backupper {
     config: Config,
     status: BackupperStatus,
+    confirm_dialog: ConfirmDialog,
 }
 
 impl Backupper {
@@ -44,6 +45,7 @@ impl Backupper {
         Backupper {
             config: Config::new(),
             status: BackupperStatus::Ready,
+            confirm_dialog: ConfirmDialog::new(),
         }
     }
 
@@ -54,11 +56,13 @@ impl Backupper {
         self.status = BackupperStatus::WaitingConfirm;
 
         // Show confirmation dialog and check user response
-        let result = show_confirmation_dialog();
-        match result {
-            true => self.confirm(), //if the user press "Yes" the confirm method is called
-            false => self.cancel(), //if the user press "No" the cancel method is called
-        }
+        let mut obj = self.clone();
+        self.confirm_dialog.open(move |result| {
+            match result {
+                true => obj.confirm(), //if the user press "Yes" the confirm method is called
+                false => obj.cancel(), //if the user press "No" the cancel method is called
+            };
+        });
     }
 
     pub fn confirm(&mut self) {
@@ -70,7 +74,7 @@ impl Backupper {
         play_audio_sin(1000.0, 0.1);
 
         self.status = BackupperStatus::Running;
-        
+
         // Start measuring CPU time
         let start_cpu_time = ProcessTime::now();
 
@@ -80,13 +84,13 @@ impl Backupper {
             let dst = &self.config.backup_dest;
             let result = copy_dir_all(src, dst);
             let total_size = result.as_ref().map_or(0, |size| *size);
-            
+
             (total_size, result)
         };
 
         // End measuring CPU time
         let elapsed_cpu_time = start_cpu_time.elapsed();
-        
+
         match result {
             Ok(_) => println!("[+] Backup finished"),
             Err(e) => {
@@ -101,10 +105,9 @@ impl Backupper {
         let log_file_path = backup_dest_path.join("backup_log.txt");
         let log_message = format!(
             "Backup completed successfully.\nTotal size: {} bytes\nCPU time used: {:?}\n",
-            total_size,
-            elapsed_cpu_time
+            total_size, elapsed_cpu_time
         );
-    
+
         if let Err(e) = fs::write(log_file_path, log_message) {
             eprintln!("[!] Failed to write log file: {}", e);
         }

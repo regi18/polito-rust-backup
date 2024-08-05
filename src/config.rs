@@ -4,7 +4,7 @@ use std::process::exit;
 use toml;
 
 // Config struct holds to data from the `[config]` section.
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Config {
     pub backup_source: String,
     pub backup_dest: String,
