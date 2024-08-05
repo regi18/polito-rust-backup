@@ -1,4 +1,4 @@
-use std::{fs::File, io::BufReader, time::Duration};
+use std::{fs::File, io::BufReader, thread, time::Duration};
 use rodio::{cpal::FromSample, source::SineWave, Decoder, OutputStream, Sample, Sink, Source};
 
 
@@ -8,15 +8,15 @@ fn play_audio<S>(source: S)
         f32: FromSample<S::Item>,
         S::Item: Sample + Send,
 {
-    // Get an output stream handle to the default physical sound device
-    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
+    // Play the sound on a separate thread so that it is non-blocking
+    thread::spawn(move || {
+        // Get an output stream handle to the default physical sound device
+        let (_stream, stream_handle) = OutputStream::try_default().unwrap();
 
-    let sink = Sink::try_new(&stream_handle).unwrap();
-    sink.append(source);
-
-    // The sound plays in a separate thread. This call will block the current thread until the sink
-    // has finished playing all its queued sounds.
-    sink.sleep_until_end();
+        let sink = Sink::try_new(&stream_handle).unwrap();
+        sink.append(source);
+        sink.sleep_until_end();
+    });
 }
 
 pub fn play_audio_sin(freq: f32, ampl: f32) {
