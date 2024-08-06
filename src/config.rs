@@ -8,6 +8,7 @@ use toml;
 pub struct Config {
     pub backup_source: String,
     pub backup_dest: String,
+    pub file_types: Vec<String>
 }
 
 impl Config {

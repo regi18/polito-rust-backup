@@ -1,25 +1,35 @@
+
 use crate::{
     audio::{play_audio_file, play_audio_sin}, config::Config, cpu_logger::ProcessTime
 };
-use std::{fs, io, path::Path};
+use std::{ffi::OsStr, fs, io, path::Path};
 
 /**
  Recursively copies src folder into dst
 */
-fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<u64> {
+fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>, file_types: &[String]) -> io::Result<u64> {
     fs::create_dir_all(&dst)?;
 
     let mut total_size = 0;
+    
+    // Check if we need to copy all files
+    let copy_all_files = file_types.contains(&"all".to_string());
 
     for entry in fs::read_dir(src)? {
         let entry = entry?;
         let ty = entry.file_type()?;
         if ty.is_dir() {
-            total_size += copy_dir_all(entry.path(), dst.as_ref().join(entry.file_name()))?;
+            let subdir_dst = dst.as_ref().join(entry.file_name());
+            // Recursively copy subdirectories
+            total_size += copy_dir_all(entry.path(), &subdir_dst, file_types)?;
         } else {
-            fs::copy(entry.path(), dst.as_ref().join(entry.file_name()))?;
-            let metadata = fs::metadata(entry.path())?;
-            total_size += metadata.len();
+            let path = entry.path();
+            let extension = path.extension().and_then(OsStr::to_str).unwrap_or("");
+            if copy_all_files || file_types.is_empty() || file_types.contains(&extension.to_string()) {
+                fs::copy(&path, dst.as_ref().join(entry.file_name()))?;
+                let metadata = fs::metadata(&path)?;
+                total_size += metadata.len();
+            }
         }
     }
 
@@ -71,7 +81,8 @@ impl Backupper {
         let (total_size, result) = {
             let src = &self.config.backup_source;
             let dst = &self.config.backup_dest;
-            let result = copy_dir_all(src, dst);
+            let file_types = &self.config.file_types;
+            let result = copy_dir_all(src, dst, file_types);
             let total_size = result.as_ref().map_or(0, |size| *size);
 
             (total_size, result)

@@ -1,2 +1,3 @@
 backup_source = "./test_data/backup_src"
 backup_dest = "./test_data/backup_dst"
+file_types = ["md", "pdf"] # select file types to backup, "all" for all files, "" for no extension files, "md" for markdown files, etc..

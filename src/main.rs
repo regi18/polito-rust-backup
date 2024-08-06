@@ -25,7 +25,7 @@ fn main() {
     let (tx, rx) = mpsc::channel();
 
     // TESTING
-    confirm_dialog.open(|_,_|{});
+    //confirm_dialog.open(|_,_|{});
     // TESTING
 
     let b = backupper.clone();
