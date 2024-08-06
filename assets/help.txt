@@ -1,0 +1,19 @@
+Instructions:
+1. To initialize a backup:
+   - Draw a rectangle starting from the top-left corner in a clockwise direction.
+
+2. To confirm and start the backup:
+   - Draw a triangle starting from the vertex in a clockwise direction, or
+   - Use the confirmation window that appears on the screen.
+
+3. To cancel the backup:
+   - Draw an 'X' starting from the top-left corner, or
+   - Use the confirmation window that appears on the screen.
+
+4. To specify the source and destination for the backup, as well as to select file types for backup, modify the `config.toml` file.
+
+Notes:
+- Ensure that the application is installed and running in the background as a startup process for automatic monitoring.
+- The application is designed to have minimal CPU consumption.
+- CPU usage is logged every 2 minutes in a log file.
+- After the backup operation completes, a log file is created on the destination USB drive specifying the total size of files backed up and the CPU time consumed.

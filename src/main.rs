@@ -1,10 +1,13 @@
 use std::sync::{mpsc, Arc, Mutex};
+use clap::{App, Arg};
 
 use backupper::Backupper;
 use confirmation_dialog::ConfirmDialog;
 use handle_figure_recognition::recognize_figures;
 use cpu_logger::Logger;
+use help::print_help;
 
+mod help;
 mod figures_templates;
 mod guessture;
 mod handle_figure_recognition;
@@ -17,6 +20,21 @@ mod confirmation_dialog;
 
 
 fn main() {
+
+    let matches = App::new("backup_tool")
+        .about("A tool for creating backups using a visual command.")
+        .arg(Arg::with_name("help")
+            .short("h")
+            .long("help")
+            .help("Prints help information"))
+        .get_matches();
+
+    // verify if the help flag is present
+    if matches.is_present("help") {
+        print_help();
+        return;
+    }
+
     // Start CPU logging in a separate thread
     Logger::new(120).start();
 
@@ -65,3 +83,4 @@ fn main() {
 
     h.join().unwrap();
 }
+
