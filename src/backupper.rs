@@ -120,6 +120,10 @@ impl Backupper {
     }
 
     pub fn cancel(&mut self) {
+        if self.status == BackupperStatus::Ready {
+            return;
+        }
+
         println!("[!] Backup canceled");
         play_audio_sin(300.0, 0.5);
 
