@@ -1,4 +1,3 @@
-
 use crate::{
     audio::{play_audio_file, play_audio_sin}, config::Config, cpu_logger::ProcessTime
 };
@@ -13,7 +12,7 @@ fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>, file_types: &[Stri
     let mut total_size = 0;
     
     // Check if we need to copy all files
-    let copy_all_files = file_types.contains(&"all".to_string());
+    let copy_all_files = file_types.contains(&"*".to_string());
 
     for entry in fs::read_dir(src)? {
         let entry = entry?;
@@ -22,7 +21,8 @@ fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>, file_types: &[Stri
             let subdir_dst = dst.as_ref().join(entry.file_name());
             // Recursively copy subdirectories
             total_size += copy_dir_all(entry.path(), &subdir_dst, file_types)?;
-        } else {
+        }
+        else {
             let path = entry.path();
             let extension = path.extension().and_then(OsStr::to_str).unwrap_or("");
             if copy_all_files || file_types.is_empty() || file_types.contains(&extension.to_string()) {
