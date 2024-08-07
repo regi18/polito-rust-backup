@@ -1,7 +1,7 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{mpsc, Arc, Mutex};
 
 use backupper::Backupper;
-// use confirmation_dialog::ConfirmDialog;
+use confirmation_dialog::ConfirmDialog;
 use handle_figure_recognition::recognize_figures;
 use cpu_logger::Logger;
 use command_line::CommandLine;
@@ -22,48 +22,38 @@ fn main() {
     CommandLine::handle();
     Logger::new(120).start();
 
-    // let confirm_dialog = Arc::new(ConfirmDialog::new());
     let backupper = Arc::new(Mutex::new(Backupper::new()));
-    // let (tx, rx) = mpsc::channel();
+    let (tx, rx) = mpsc::channel();
 
     let b = backupper.clone();
-    // let c = confirm_dialog.clone();
     let h = recognize_figures(move |name| {
         let mut guard = b.lock().unwrap();
 
         match name.as_str() {
-            "rectangle" => { guard.init(); /*tx.send(()).unwrap();*/ },
-            "triangle" => { /* c.close(); */ guard.confirm(); }
-            "delete" => { /* c.close(); */ guard.cancel(); }
+            "rectangle" => { guard.init(); tx.send(()).unwrap(); },
+            "triangle" => { guard.confirm(); }
+            "delete" => { guard.cancel(); }
             _ => {},
         }
     });
 
 
-    // TESTING
-    //confirm_dialog.open(|_,_|{});
-    // TESTING
-    // let c1 = confirm_dialog.clone();
-    // loop {
-    //     let b1 = backupper.clone();
-
-    //     match rx.recv() {
-    //         Ok(_) => {
-    //             c1.open(move |result, is_running| {
-    //                 (*(*is_running).lock().unwrap()) = false;
-    //                 let mut guard = b1.lock().unwrap();
-    //                 match result {
-    //                     true => guard.confirm(),
-    //                     false => guard.cancel(),
-    //                 };
-    //             });
-    //         },
-    //         Err(e) => {
-    //             println!("CHANNEL ERROR: {:?}", e);
-    //             break;
-    //         }
-    //     };
-    // }
+    loop {
+        match rx.recv() {
+            Ok(_) => {
+                let res = ConfirmDialog::open();
+                let mut guard = backupper.lock().unwrap();
+                match res {
+                    true => guard.confirm(),
+                    false => guard.cancel(),
+                };
+            },
+            Err(e) => {
+                println!("CHANNEL ERROR: {:?}", e);
+                break;
+            }
+        };
+    }
 
     h.join().unwrap();
 }
