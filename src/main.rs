@@ -37,23 +37,7 @@ fn main() {
         }
     });
 
-
-    loop {
-        match rx.recv() {
-            Ok(_) => {
-                let res = ConfirmDialog::open();
-                let mut guard = backupper.lock().unwrap();
-                match res {
-                    true => guard.confirm(),
-                    false => guard.cancel(),
-                };
-            },
-            Err(e) => {
-                println!("CHANNEL ERROR: {:?}", e);
-                break;
-            }
-        };
-    }
+    ConfirmDialog::handle(rx, backupper);
 
     h.join().unwrap();
 }
