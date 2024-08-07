@@ -92,3 +92,25 @@ impl ProcessTime {
     }
 }
 
+
+
+#[cfg(test)]
+mod cpu_logger_tests {
+    use super::*;
+    use std::fs;
+
+    #[test]
+    fn test_logger_creation() {
+        let _ = Logger::new(120);
+        assert!(fs::metadata("cpu_usage.log").is_ok());
+    }
+
+    #[test]
+    fn test_logger_start() {
+        let mut logger = Logger::new(1);
+        logger.start();
+        // Wait a bit to let the logger write
+        std::thread::sleep(std::time::Duration::from_secs(2));
+        assert!(fs::read_to_string("cpu_usage.log").unwrap().contains("CPU Usage:"));
+    }
+}

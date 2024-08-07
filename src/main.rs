@@ -68,3 +68,67 @@ fn main() {
     h.join().unwrap();
 }
 
+
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::{Arc, Mutex};
+    use std::thread;
+    use std::time::Duration;
+    use backupper::{Backupper, BackupperStatus};
+    use handle_figure_recognition::recognize_figures;
+
+    #[test]
+    fn test_backup_init() {
+        let backupper = Arc::new(Mutex::new(Backupper::new()));
+        let b = backupper.clone();
+        
+        let _h = recognize_figures(move |name| {
+            if name == "rectangle" {
+                let mut guard = b.lock().unwrap();
+                guard.init();
+                assert_eq!(guard.get_status(), BackupperStatus::WaitingConfirm);
+            }
+        });
+
+        // Simulate drawing a rectangle
+        thread::sleep(Duration::from_millis(100));
+    }
+
+    #[test]
+    fn test_backup_confirm() {
+        let backupper = Arc::new(Mutex::new(Backupper::new()));
+        let b = backupper.clone();
+        
+        let _h = recognize_figures(move |name| {
+            if name == "triangle" {
+                let mut guard = b.lock().unwrap();
+                guard.confirm();
+                assert_eq!(guard.get_status(), BackupperStatus::Running);
+            }
+        });
+
+        // Simulate drawing a triangle
+        thread::sleep(Duration::from_millis(100));
+    }
+
+    #[test]
+    fn test_backup_cancel() {
+        let backupper = Arc::new(Mutex::new(Backupper::new()));
+        let b = backupper.clone();
+        
+        let _h = recognize_figures(move |name| {
+            if name == "delete" {
+                let mut guard = b.lock().unwrap();
+                guard.cancel();
+                assert_eq!(guard.get_status(), BackupperStatus::Ready);
+            }
+        });
+
+        // Simulate drawing a delete gesture
+        thread::sleep(Duration::from_millis(100));
+    }
+}
+

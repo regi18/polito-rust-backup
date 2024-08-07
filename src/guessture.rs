@@ -351,12 +351,3 @@ pub fn find_matching_template<'a, 'b>(
     }
     return template_match;
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-    }
-}

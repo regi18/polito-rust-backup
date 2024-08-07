@@ -32,3 +32,17 @@ pub fn play_audio_file(file_name: &str) {
 
     play_audio(source);
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::thread;
+    use std::time::Duration;
+
+    #[test]
+    fn test_play_audio_sin() {
+        play_audio_sin(300.0, 0.5);
+        thread::sleep(Duration::from_secs(1));
+    }
+}

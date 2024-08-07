@@ -36,8 +36,8 @@ fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>, file_types: &[Stri
     Ok(total_size)
 }
 
-#[derive(PartialEq, Clone)]
-enum BackupperStatus {
+#[derive(PartialEq, Clone, Debug)]
+pub enum BackupperStatus {
     Ready,
     WaitingConfirm,
     Running,
@@ -55,6 +55,10 @@ impl Backupper {
             config: Config::new(),
             status: BackupperStatus::Ready,
         }
+    }
+    
+    pub fn get_status(&self) -> BackupperStatus {
+        self.status.clone()
     }
 
     pub fn init(&mut self) {
@@ -120,5 +124,48 @@ impl Backupper {
         play_audio_sin(300.0, 0.5);
 
         self.status = BackupperStatus::Ready;
+    }
+}
+
+
+
+
+#[cfg(test)]
+mod backupper_tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    #[test]
+    fn test_copy_dir_all() {
+        let src = PathBuf::from("test_data/backup_src");
+        let dst = PathBuf::from("test_data/backup_dst");
+        let file_types = vec!["txt".to_string()];
+
+        let result = copy_dir_all(src, dst, &file_types);
+        assert!(result.is_ok());
+        assert!(result.unwrap() > 0);
+    }
+
+    #[test]
+    fn test_backup_init() {
+        let mut backupper = Backupper::new();
+        backupper.init();
+        assert_eq!(backupper.status, BackupperStatus::WaitingConfirm);
+    }
+
+    #[test]
+    fn test_backup_confirm() {
+        let mut backupper = Backupper::new();
+        backupper.init();
+        backupper.confirm();
+        assert_eq!(backupper.status, BackupperStatus::Ready);
+    }
+
+    #[test]
+    fn test_backup_cancel() {
+        let mut backupper = Backupper::new();
+        backupper.init();
+        backupper.cancel();
+        assert_eq!(backupper.status, BackupperStatus::Ready);
     }
 }

@@ -34,3 +34,18 @@ impl Config {
         return config;
     }
 }
+
+
+
+#[cfg(test)]
+mod config_tests {
+    use super::*;
+
+    #[test]
+    fn test_config_loading() {
+        let config = Config::new();
+        assert_eq!(config.backup_source, "./test_data/backup_src");
+        assert_eq!(config.backup_dest, "./test_data/backup_dst");
+        assert_eq!(config.file_types, vec!["md", "pdf"]);
+    }
+}
