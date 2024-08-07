@@ -1,3 +1,4 @@
 /target
 /test_data/backup_dst/
 cpu_usage.log
+.DS_Store
